@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-im = cv2.imread("Pictures/licenseWithPartOfCar/Image_86.jpg")
+im = cv2.imread("img2")
 
 plt.imshow(im)
 plt.show()

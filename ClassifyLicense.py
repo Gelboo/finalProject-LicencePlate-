@@ -1,11 +1,11 @@
-# from Preprocessing import *
-# import keras
+from Preprocessing import *
+import keras
 
 # break trainset into trainset and validationset
 #take first 80% as train and 20% as validation
-# uptill = int(len(x_train)*0.8)
-# (x_train,x_valid) = x_train[:uptill],x_train[uptill:]
-# (y_train,y_valid) = y_train[:uptill],y_train[uptill:]
+uptill = int(len(x_train)*0.8)
+(x_train,x_valid) = x_train[:uptill],x_train[uptill:]
+(y_train,y_valid) = y_train[:uptill],y_train[uptill:]
 
 # print x_train.shape
 # print x_valid.shape
@@ -38,14 +38,14 @@ model.compile(loss='mean_squared_error',optimizer='rmsprop',metrics=['accuracy']
 from keras.callbacks import ModelCheckpoint
 #train the model
 checkpointer = ModelCheckpoint(filepath='model.weights.best.hdf5',verbose=1,save_best_only=True)
-# hist = model.fit(x_train,y_train,batch_size=32,epochs=100,validation_data=(x_valid,y_valid),callbacks=[checkpointer],verbose=2,shuffle=True)
+hist = model.fit(x_train,y_train,batch_size=32,epochs=100,validation_data=(x_valid,y_valid),callbacks=[checkpointer],verbose=2,shuffle=True)
 
 # load weight with best validation score
 model.load_weights('model.weights.best.hdf5')
 
 # calculate Cassification Accuracy
-# score = model.evaluate(x_test,y_test,verbose=0)
-# print 'test accuracy',score[1]
+score = model.evaluate(x_test,y_test,verbose=0)
+print 'test accuracy',score[1]
 
 # test_img = []
 # test_img.append(np.array(cv2.resize(cv2.imread('Pictures/Test_images/person.jpg'),(40,40))))
@@ -78,56 +78,27 @@ import cv2
 import numpy as np
 import matplotlib.patches as patches
 
-im = cv2.imread('Pictures/licenseWithPartOfCar/Image_86.jpg')
+im = cv2.imread('Pictures/licenseWithPartOfCar/Image_3.jpg')
 img = np.array([im])
 # print img.shape
 img2 = np.array([cv2.resize(im,(100,100))])
 # print model.predict(img2)
 
 
-window_size = [100]
+(winW,winH) = (100,100)
+from pyramid import *
+import time
 
-i = 0
+for resized in pyramid(im,scale = 1.5):
+    for (x,y,window) in sliding_window(resized,stepSize=32,windowSize=(winW,winH)):
+        #if window doesn't meet window size ignore it
+        if window.shape[0] != winH or window.shape[1] != winW:
+            continue
+        img = np.array([cv2.resize(window,(100,100))])
+        print model.predict(img)
 
-
-for w in window_size:
-    platess = []
-    fig,ax = plt.subplots()
-    r,c,i= 0,0,0
-    for m in img:
-        # print m.shape
-        x_window_size = w
-        y_window_size = w
-        # print m.sshape
-        ax.imshow(m[:,:,[2,1,0]])
-        img_width = m.shape[1]
-        img_height = m.shape[0]
-        print "width= ",img_width
-        print "height= ",img_height
-        while r <= img_height-y_window_size:
-            if c > img_width-x_window_size:
-                r += 100
-                c = 0
-            new_height = r+y_window_size
-            new_width = c+x_window_size
-            rect = patches.Rectangle((c,r),w,w,linewidth=1,edgecolor='r',facecolor='none')
-            ax.add_patch(rect)
-            # if new_height <= img_height and new_width <= img_width:
-                # small_window = m[r:r+y_window_size,c:c+x_window_size]
-                # img2 = np.array([cv2.resize(small_window,(100,100))])
-                # y_hat = np.round(model.predict(img2)).astype('int')
-
-                # print y_hat
-                # if y_hat == 1:
-                #     platess.append((r,c))
-            c+=100
-            i += 1
-        print 'number of plates found = ',str(len(platess))
-        print i
-        plt.show()
-        # print platessprint 'number of plates found = ',str(len(plates))
-# (600, 1000), (600, 1400)
-# img_new = im[600:700,400:500]
-# plt.imshow(img_new)
-# plt.show()
-# print model.predict(np.array([cv2.resize(img_new,(100,100))]))
+        clone = resized.copy()
+        cv2.rectangle(clone,(x,y),(x+winW,y+winH),(0,0,255),2)
+        cv2.imshow("window",clone)
+        cv2.waitKey(1)
+        time.sleep(0.25)
