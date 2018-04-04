@@ -1,16 +1,6 @@
-from Preprocessing import *
+from PreprocessingLicense import *
 import keras
 
-# break trainset into trainset and validationset
-#take first 80% as train and 20% as validation
-uptill = int(len(x_train)*0.8)
-(x_train,x_valid) = x_train[:uptill],x_train[uptill:]
-(y_train,y_valid) = y_train[:uptill],y_train[uptill:]
-
-# print x_train.shape
-# print x_valid.shape
-# print y_train.shape
-# print y_valid.shape
 
 # define the model
 from keras.models import Sequential
@@ -29,7 +19,7 @@ model.add(Dense(500,activation='relu'))
 model.add(Dropout(0.4))
 
 model.add(Dense(1,activation='sigmoid'))
-# model.summary()
+model.summary()
 
 # compile the model
 model.compile(loss='mean_squared_error',optimizer='rmsprop',metrics=['accuracy'])
@@ -38,7 +28,7 @@ model.compile(loss='mean_squared_error',optimizer='rmsprop',metrics=['accuracy']
 from keras.callbacks import ModelCheckpoint
 #train the model
 checkpointer = ModelCheckpoint(filepath='model.weights.best.hdf5',verbose=1,save_best_only=True)
-hist = model.fit(x_train,y_train,batch_size=32,epochs=100,validation_data=(x_valid,y_valid),callbacks=[checkpointer],verbose=2,shuffle=True)
+# hist = model.fit(x_train,y_train,batch_size=32,epochs=100,validation_data=(x_valid,y_valid),callbacks=[checkpointer],verbose=2,shuffle=True)
 
 # load weight with best validation score
 model.load_weights('model.weights.best.hdf5')
@@ -78,27 +68,34 @@ import cv2
 import numpy as np
 import matplotlib.patches as patches
 
-im = cv2.imread('Pictures/licenseWithPartOfCar/Image_3.jpg')
+im = cv2.imread('image6.jpg')
 img = np.array([im])
 # print img.shape
 img2 = np.array([cv2.resize(im,(100,100))])
 # print model.predict(img2)
 
 
-(winW,winH) = (100,100)
+(winW,winH) = (130,80)
+stepSizeH,stepSizeV = 50,winH
+
 from pyramid import *
 import time
-
-for resized in pyramid(im,scale = 1.5):
-    for (x,y,window) in sliding_window(resized,stepSize=32,windowSize=(winW,winH)):
+i = 0
+for resized in pyramid(im,scale = 3,minSize=(200,200)):
+    for (x,y,window) in sliding_window(resized,stepSizeH=stepSizeH,stepSizeV=stepSizeV,windowSize=(winW,winH)):
         #if window doesn't meet window size ignore it
         if window.shape[0] != winH or window.shape[1] != winW:
             continue
         img = np.array([cv2.resize(window,(100,100))])
-        print model.predict(img)
-
+        prediction = model.predict(img)
+        print prediction
+        color = (0,0,255)
+        if prediction == 1:
+            cv2.imwrite("PossibleLicense/img"+str(i)+".png",cv2.resize(window,(400,400)))
+            i+=1
+            color = (255,0,0)
         clone = resized.copy()
-        cv2.rectangle(clone,(x,y),(x+winW,y+winH),(0,0,255),2)
+        cv2.rectangle(clone,(x,y),(x+winW,y+winH),color,2)
         cv2.imshow("window",clone)
         cv2.waitKey(1)
-        time.sleep(0.25)
+        time.sleep(0.5)

@@ -14,10 +14,10 @@ def pyramid(image,scale=1.5,minSize=(100,100)):
         if image.shape[0] < minSize[1] or image.shape[1] < minSize[0]:
             break
         yield image
-def sliding_window(image,stepSize,windowSize):
+def sliding_window(image,stepSizeH,stepSizeV,windowSize):
     #sliding the window across the image
-    for y in range(0,image.shape[0],stepSize):
-        for x in range(0,image.shape[1],stepSize):
+    for y in range(0,image.shape[0],stepSizeV):
+        for x in range(0,image.shape[1],stepSizeH):
             yield (x,y,image[y:y+windowSize[1],x:x+windowSize[0]])
 
 
