@@ -94,3 +94,6 @@ uptill = int(len(x_train)*0.8)
 # print x_valid.shape
 # print y_train.shape
 # print y_valid.shape
+
+plt.hist(x_train[0],y_train[0])
+plt.show()

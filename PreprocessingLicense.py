@@ -74,6 +74,14 @@ x_train = x_train.astype('float32')/255
 x_test = x_test.astype('float32')/255
 # print x_train[0]
 
+import seaborn as sns
+sns.set()
+plt.hist(y_train,ec='black')
+plt.xlabel('Labels')
+plt.ylabel('Frequency')
+
+plt.show()
+
 # break trainset into trainset and validationset
 #take first 80% as train and 20% as validation
 uptill = int(len(x_train)*0.8)

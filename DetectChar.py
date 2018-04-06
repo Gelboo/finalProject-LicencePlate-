@@ -21,8 +21,10 @@ model2.add(MaxPooling2D(pool_size=2))
 
 model2.add(Dropout(0.3))
 model2.add(Flatten())
+model2.add(Dense(1000,activation='relu'))
+model2.add(Dropout(0.2))
 model2.add(Dense(500,activation='relu'))
-model2.add(Dropout(0.3))
+model2.add(Dropout(0.2))
 
 model2.add(Dense(36,activation='softmax'))
 model2.summary()

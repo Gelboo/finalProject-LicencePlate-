@@ -64,7 +64,15 @@ print y_test.shape
 x_train = x_train.astype('float32')/255
 x_test = x_test.astype('float32')/255
 # print x_train[0]
-
+bins = np.arange(0,36)
+lbl = Upper_Characters + numbers
+import seaborn as sns
+sns.set()
+plt.hist(y_train,bins,ec='black')
+plt.xlabel('Labels')
+plt.ylabel('Frequency')
+plt.xticks(bins,lbl)
+plt.show()
 import keras
 
 # one Hot_Encoding
